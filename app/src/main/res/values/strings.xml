@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TaskIt</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_task">TaskActivity</string>
+    <string name="done">Done</string>
+    <string name="task_item">Task Item</string>
+    <string name="submit">Submit</string>
+</resources>
