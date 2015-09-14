@@ -21,6 +21,7 @@ import java.util.List;
 public class TaskListActivity extends AppCompatActivity {
     private static final String TAG = "TaskListActivity";
     private static final int EDIT_TASK = 10;
+    private static final int CREATE_TASK = 20;
 
     private ListView taskList;
     private TaskAdapter taskAdapter;
@@ -103,6 +104,15 @@ public class TaskListActivity extends AppCompatActivity {
                     this.taskAdapter.notifyDataSetChanged();
                 }
                 break;
+            case CREATE_TASK:
+                if (resultCode == RESULT_OK) {
+                    Task task = (Task) data.getSerializableExtra(getResources().getString(R.string.task_item));
+                    Log.d(TAG, task.getName());
+
+                    this.tasks.add(task);
+                    this.taskAdapter.notifyDataSetChanged();
+                }
+                break;
             default:
                 Log.d(TAG, "Unknown request");
         }
@@ -117,7 +127,8 @@ public class TaskListActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.add_task) {
-            return true;
+            Intent taskItem = new Intent(TaskListActivity.this, TaskActivity.class);
+            startActivityForResult(taskItem, CREATE_TASK);
         }
 
         return super.onOptionsItemSelected(item);
