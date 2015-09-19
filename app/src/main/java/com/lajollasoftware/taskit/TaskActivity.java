@@ -35,6 +35,10 @@ public class TaskActivity extends AppCompatActivity {
         setContentView(R.layout.activity_task);
         this.task = (Task) getIntent().getSerializableExtra(getResources().getString(R.string.task_item));
 
+        if (task == null) {
+            this.task = new Task();
+        }
+
         Log.d(TAG, "Got task " + task);
 
         cal = Calendar.getInstance();
