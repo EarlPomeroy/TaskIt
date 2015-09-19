@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,27 +29,6 @@ public class TaskListActivity extends AppCompatActivity {
 
     private ArrayList<Task> tasks;
     private int lastPositionClicked;
-
-    private class TaskAdapter extends ArrayAdapter<Task> {
-        public TaskAdapter(List<Task> tasks) {
-            super(TaskListActivity.this, R.layout.task_list_row, R.id.task_item_name, tasks);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            convertView =  super.getView(position, convertView, parent);
-
-            Task task = getItem(position);
-
-            TextView taskName = (TextView) convertView.findViewById(R.id.task_item_name);
-            taskName.setText(task.getName());
-
-            CheckBox taskDone = (CheckBox) convertView.findViewById(R.id.task_item_done);
-            taskDone.setChecked(task.isDone());
-
-            return convertView;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +61,8 @@ public class TaskListActivity extends AppCompatActivity {
                 startActivityForResult(taskItem, EDIT_TASK);
             }
         });
+
+        registerForContextMenu(taskList);
     }
 
     @Override
@@ -132,5 +114,46 @@ public class TaskListActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.menu_task_item_context, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.delete_task) {
+            AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            tasks.remove(menuInfo.position);
+            this.taskAdapter.notifyDataSetChanged();
+            return true;
+        }
+
+        return super.onContextItemSelected(item);
+    }
+
+    private class TaskAdapter extends ArrayAdapter<Task> {
+        public TaskAdapter(List<Task> tasks) {
+            super(TaskListActivity.this, R.layout.task_list_row, R.id.task_item_name, tasks);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            convertView =  super.getView(position, convertView, parent);
+
+            Task task = getItem(position);
+
+            TextView taskName = (TextView) convertView.findViewById(R.id.task_item_name);
+            taskName.setText(task.getName());
+
+            CheckBox taskDone = (CheckBox) convertView.findViewById(R.id.task_item_done);
+            taskDone.setChecked(task.isDone());
+
+            return convertView;
+        }
     }
 }
