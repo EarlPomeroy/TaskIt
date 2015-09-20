@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -35,7 +38,7 @@ public class TaskListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_list);
 
-       tasks = new ArrayList<>();
+        tasks = new ArrayList<>();
         tasks.add(new Task());
         tasks.get(0).setName("task 1");
         tasks.add(new Task());
@@ -62,7 +65,50 @@ public class TaskListActivity extends AppCompatActivity {
             }
         });
 
-        registerForContextMenu(taskList);
+        taskList.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        taskList.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                Log.d(TAG, "Position is " + position + " checked is " + checked);
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                getMenuInflater().inflate(R.menu.menu_task_item_context, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                int id = item.getItemId();
+                SparseBooleanArray positions = taskList.getCheckedItemPositions();
+
+                if (id == R.id.delete_task) {
+                    for (int i = positions.size() - 1; i >= 0; i--) {
+                        if (positions.valueAt(i)) {
+                            tasks.remove(positions.keyAt(i));
+                        }
+                    }
+
+                    taskAdapter.notifyDataSetChanged();
+                    mode.finish();
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+        });
     }
 
     @Override
@@ -143,7 +189,7 @@ public class TaskListActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            convertView =  super.getView(position, convertView, parent);
+            convertView = super.getView(position, convertView, parent);
 
             Task task = getItem(position);
 
